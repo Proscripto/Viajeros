@@ -83,7 +83,7 @@ class Migrante inherits Persona {
 		
 	}
 	
-	method residenciaEnElAnio(_unAnio){ // MEJORAR ESTE METODO !!!
+	method residenciaEnElAnio(_unAnio){//retorna un conjunto con los paises en que estubo ese año.MEJORAR ESTE METODO !!!
 		
 		var r = #{}
 		if (_unAnio == self.anioMudanza()){
@@ -123,6 +123,7 @@ class Migrante inherits Persona {
 	//==============================================================================================
 }
 // falta el coincidioCon()
+
 /** Doctor : se sabe en qué país vive, en qué país hizo el doctorado, y entre qué años.
 P.ej. si Juan, que vive en Brasil, hizo el doctorado en Colombia entre 2008 y 2011,
 entonces residió en Colombia esos 4 años, y en Brasil hasta 2008 inclusive, y a
@@ -153,6 +154,47 @@ class Doctor inherits Persona {
 		finDoctorado = _anioFin
 		
 	}
+	
+	method residencia() = residencia
+	method paisDondeDoctoro() = paisDondeDoctoro
+	method inicioDoctorado() = inicioDoctorado
+	method finDoctorado() = finDoctorado
+	
+	override method enQuePaisesEstuvo(_unAnio){
+		
+		return self.paisesDeLosViajes(self.viajesEnElAnio(_unAnio)).addAll(self.residenciaEnElAnio(_unAnio))
+	}
+	
+	method residenciaEnElAnio(_unAnio){
+		var r = #{}
+		if (_unAnio.beetwen(self.inicioDoctorado(), self.finDoctorado()) ){
+			r.add(self.paisDondeDoctoro())
+		}
+		else if(_unAnio == self.inicioDoctorado() or _unAnio == self.finDoctorado()){
+			r.add(self.residencia())
+			r.add(self.paisDondeDoctoro())
+		}
+		else
+			r.add(self.residencia())
+			
+		return r
+	}
+	
+	//==============================================================================================
+	//==============================================================================================
+	// POSIBLES METODOS PARA LA SUPERCLASE
+	method viajesEnElAnio(_unAnio){// retorna una Lista con los viajes de ese año realizados por la persona
+		
+		return viajes.filter({viajes => viajes.anio() == _unAnio})
+	}
+	
+	method paisesDeLosViajes(_unosViajes){// recibe una lista y devuelve otra con los nombres de los paises de cada viaje
+		
+		return _unosViajes.map({viajes => viajes.pais()})
+		
+	}
+	//==============================================================================================
+	//==============================================================================================
 }
 
 /** Menor : se sabe quién es la madre. Reside, en cualquier año, en los mismos paises
