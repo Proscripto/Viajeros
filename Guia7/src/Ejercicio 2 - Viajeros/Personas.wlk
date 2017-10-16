@@ -12,7 +12,21 @@ class Persona {
 	
 	/* Dada una persona, si coincidió con otra en un determinado año, o sea, si hay al
 	menos un país en el que los dos estuvieron en ese año */
-	method coincidioCon(_unaPersona,_unAnio)
+	method coincidioCon(_unaPersona, _unAnio){
+		return self.enQuePaisesEstuvo(_unAnio).any({pais => _unaPersona.enQuePaisesEstuvo(_unAnio).contains(pais)})
+	}
+	
+	
+	method viajesEnElAnio(_unAnio){// retorna una Lista con los viajes de ese año realizados por la persona
+		
+		return viajes.filter({viaje => viaje.anio() == _unAnio})
+	}
+	
+	method paisesDeLosViajes(_unosViajes){// recibe una lista y devuelve otra con los nombres de los paises de cada viaje
+		
+		return _unosViajes.map({viaje => viaje.pais()})
+		
+	}
 
 }
 
@@ -31,30 +45,20 @@ class Establecido inherits Persona {
 	}
 	
 	method residencia() = residencia
-	
-	/** redefinicion del metodo */
+	method residenciaEnUnConjunto(){//para que sea polimorfico con el menor
+		var r = #{}
+		r.add(residencia)
+		
+		return r
+	}
+	/** redefinicion del los metodos */
 	override method enQuePaisesEstuvo(_unAnio){
 		
-		return self.paisesDeLosViajes(self.viajesEnElAnio(_unAnio)).add(residencia)
+		return self.paisesDeLosViajes(self.viajesEnElAnio(_unAnio)).addAll(self.residenciaEnUnConjunto())
 	}
 	
-	//==============================================================================================
-	//==============================================================================================
-	// POSIBLES METODOS PARA LA SUPERCLASE
-	method viajesEnElAnio(_unAnio){// retorna una Lista con los viajes de ese año realizados por la persona
-		
-		return viajes.filter({viajes => viajes.anio() == _unAnio})
-	}
-	
-	method paisesDeLosViajes(_unosViajes){// recibe una lista y devuelve otra con los nombres de los paises de cada viaje
-		
-		return _unosViajes.map({viajes => viajes.pais()})
-		
-	}
-	//==============================================================================================
-	//==============================================================================================
 }
-//falta el coincidioCon()
+
 /** Migrante: se sabe en qué país nació, a qué país se mudó, y en qué año. Hasta el año
 antes de mudarse, residió en el país en el que nació. Después de mudarse, residió
 en el país al que se mudó. El año en que se mudó residió en los dos */
@@ -62,14 +66,12 @@ class Migrante inherits Persona {
 	
 	var nacidoEn
 	var residencia
-	var anioMudanza = 2017 //desde el presente...
+	var anioMudanza = 2017 //inicializado en el presente
 	
 	constructor(_nacidoEn){
 		
 		nacidoEn = _nacidoEn
-		residencia = _nacidoEn
-		
-		
+		residencia = _nacidoEn	
 	}
 	
 	method nacidoEn() = nacidoEn
@@ -106,23 +108,7 @@ class Migrante inherits Persona {
 		return self.paisesDeLosViajes(self.viajesEnElAnio(_unAnio)).addAll(self.residenciaEnElAnio(_unAnio))
 	}
 	
-	//==============================================================================================
-	//==============================================================================================
-	// POSIBLES METODOS PARA LA SUPERCLASE
-	method viajesEnElAnio(_unAnio){// retorna una Lista con los viajes de ese año realizados por la persona
-		
-		return viajes.filter({viajes => viajes.anio() == _unAnio})
-	}
-	
-	method paisesDeLosViajes(_unosViajes){// recibe una lista y devuelve otra con los nombres de los paises de cada viaje
-		
-		return _unosViajes.map({viajes => viajes.pais()})
-		
-	}
-	//==============================================================================================
-	//==============================================================================================
 }
-// falta el coincidioCon()
 
 /** Doctor : se sabe en qué país vive, en qué país hizo el doctorado, y entre qué años.
 P.ej. si Juan, que vive en Brasil, hizo el doctorado en Colombia entre 2008 y 2011,
@@ -180,25 +166,31 @@ class Doctor inherits Persona {
 		return r
 	}
 	
-	//==============================================================================================
-	//==============================================================================================
-	// POSIBLES METODOS PARA LA SUPERCLASE
-	method viajesEnElAnio(_unAnio){// retorna una Lista con los viajes de ese año realizados por la persona
-		
-		return viajes.filter({viajes => viajes.anio() == _unAnio})
-	}
-	
-	method paisesDeLosViajes(_unosViajes){// recibe una lista y devuelve otra con los nombres de los paises de cada viaje
-		
-		return _unosViajes.map({viajes => viajes.pais()})
-		
-	}
-	//==============================================================================================
-	//==============================================================================================
 }
 
 /** Menor : se sabe quién es la madre. Reside, en cualquier año, en los mismos paises
 que la madre. OJO los viajes del menor son separados, si viajaron juntos, hay
 que cargar el viaje en los dos, solamente se considera que coinciden los países de
 residencia */
-class Menor inherits Persona {}
+class Menor inherits Persona {
+	
+	var madre
+	
+	constructor(_madre){
+		madre = _madre
+	}
+	
+	method residencia(){
+		return madre.residencia()
+	}
+	
+	override method enQuePaisesEstuvo(_unAnio){
+		
+		return self.paisesDeLosViajes(self.viajesEnElAnio(_unAnio)).addAll(self.residenciaEnElAnio(_unAnio))
+	}
+	
+	method residenciaEnElAnio(_unAnio){
+		return madre.residenciaEnElAnio(_unAnio)
+	}
+	
+}

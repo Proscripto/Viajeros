@@ -14,3 +14,17 @@ class Viaje {
 	method anio() = anio
 	
 }
+
+
+//---------------------------------------------------------------
+//---------------------  PAISES --------------------------------
+//---------------------------------------------------------------
+//algunos paises para usar en los test
+
+object uruguay{}
+object paraguay{}
+object argentina{}
+object rusia{}
+object suecia{}
+object espania{}
+object alemania{}
