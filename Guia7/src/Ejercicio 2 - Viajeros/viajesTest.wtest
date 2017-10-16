@@ -1,0 +1,31 @@
+import Personas.*
+import Viajes.*
+
+describe "Test de clases y metodos para las personas"{
+	
+	var teresa
+	var jose
+	var lalo
+	var minio
+	
+	fixture{
+		
+		teresa = new Establecido(uruguay)
+		jose = new Migrante(espania)
+		lalo = new Doctor(alemania,argentina,2010,2014)
+		minio = new	Menor(teresa)
+		
+		
+		teresa.agregarViaje(new Viaje(rusia,2015))
+		jose.agregarViaje(new Viaje(alemania,2010))
+		lalo.agregarViaje(new Viaje(suecia,2013))
+		minio.agregarViaje(new Viaje(rusia,2015))
+	}
+	
+	test "teresa y su hijo viajaron a rusia en el 2015" {
+
+	assert.equals(teresa.viajesEnElAnio(2015),rusia)
+	//assert.equals(minio.viajesEnElAnio(2015),rusia)
+
+	}
+}
